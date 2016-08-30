@@ -6,25 +6,17 @@ class NegociacaoController {
         this._inputQuantidade = $('#quantidade');
         this._inputValor = $('#valor');
 
-        this._negociacoesView = new NegociacoesView($('#negociacoesView'));
-        this._mensagemView = new MensagemView($('#mensagemView'));
+        this._mensagem = new Bind(
+            new Mensagem(),
+            new MensagemView($('#mensagemView')),
+            'texto'
+        );
 
-        this._mensagem = new Mensagem();
-
-        let self = this;
-        this._listaNegociacoes = new Proxy(new ListaNegociacoes(), {
-            get(target, prop, receiver) {
-                if(['adiciona', 'esvazia'].includes(prop) && typeof(target[prop]) == typeof(Function)) {
-                    return function() {
-                        console.log(`Método ${prop} interceptado!`);
-                        Reflect.apply(target[prop], target, arguments);
-                        self._negociacoesView.update(target);
-                    }
-                }
-
-                return Reflect.get(target, prop, receiver);
-            }
-        });
+        this._listaNegociacoes = new Bind(
+            new ListaNegociacoes(),
+            new NegociacoesView($('#negociacoesView')),
+            'adiciona', 'esvazia'
+        );
     }
 
     adiciona(event) {
@@ -32,15 +24,11 @@ class NegociacaoController {
 
         this._listaNegociacoes.adiciona(this._criaNegociacao());
         this._mensagem.texto = 'Negociação salva com sucesso!';
-
-        this._mensagemView.update(this._mensagem);
     }
 
     apaga() {
         this._listaNegociacoes.esvazia();
-
         this._mensagem.texto = 'Negociações excluídas com sucesso!';
-        this._mensagemView.update(this._mensagem);
     }
 
     _criaNegociacao() {
