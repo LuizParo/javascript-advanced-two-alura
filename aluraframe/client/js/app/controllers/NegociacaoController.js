@@ -6,6 +6,8 @@ class NegociacaoController {
         this._inputQuantidade = $('#quantidade');
         this._inputValor = $('#valor');
 
+        this._negociacaoService = new NegociacaoService();
+
         this._mensagem = new Bind(
             new Mensagem(),
             new MensagemView($('#mensagemView')),
@@ -29,6 +31,19 @@ class NegociacaoController {
     apaga() {
         this._listaNegociacoes.esvazia();
         this._mensagem.texto = 'Negociações excluídas com sucesso!';
+    }
+
+    importaNegociacoes() {
+        this._negociacaoService.obterNegociacoesDaSemana((erro, negociacoes) => {
+            if(erro) {
+                this._mensagem.texto = erro;
+                return;
+            }
+
+            negociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
+        });
+
+        this._mensagem.texto = 'Negociações importadas com sucesso!';
     }
 
     _criaNegociacao() {
